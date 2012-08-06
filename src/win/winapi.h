@@ -4426,6 +4426,11 @@ typedef VOID (WINAPI* sReleaseSRWLockShared)
 typedef VOID (WINAPI* sReleaseSRWLockExclusive)
              (PSRWLOCK SRWLock);
 
+typedef WORD (WINAPI* sGetMaximumProcessorGroupCount)
+             (void);
+
+typedef DWORD (WINAPI* sGetMaximumProcessorCount)
+              (WORD GroupNumber);
 
 
 /* Ntdll function pointers */
@@ -4448,5 +4453,7 @@ extern sTryAcquireSRWLockShared pTryAcquireSRWLockShared;
 extern sTryAcquireSRWLockExclusive pTryAcquireSRWLockExclusive;
 extern sReleaseSRWLockShared pReleaseSRWLockShared;
 extern sReleaseSRWLockExclusive pReleaseSRWLockExclusive;
+extern sGetMaximumProcessorGroupCount pGetMaximumProcessorGroupCount;
+extern sGetMaximumProcessorCount pGetMaximumProcessorCount;
 
 #endif /* UV_WIN_WINAPI_H_ */

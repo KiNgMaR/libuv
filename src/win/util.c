@@ -578,10 +578,41 @@ uv_err_t uv_uptime(double* uptime) {
 }
 
 
+static DWORD uv__get_cpu_count() {
+  OSVERSIONINFOEXW osvi = { sizeof(OSVERSIONINFOEXW), 0 };
+  DWORDLONG condition_mask = 0;
+
+  osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
+  osvi.dwMajorVersion = 6;
+  osvi.dwMinorVersion = 1;
+
+  VER_SET_CONDITION(condition_mask, VER_PLATFORMID, VER_EQUAL);
+  VER_SET_CONDITION(condition_mask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+  VER_SET_CONDITION(condition_mask, VER_MINORVERSION, VER_GREATER_EQUAL);
+
+  if(VerifyVersionInfoW(&osvi, VER_PLATFORMID | VER_MAJORVERSION | VER_MINORVERSION, condition_mask) &&
+        pGetMaximumProcessorGroupCount && pGetMaximumProcessorCount) {
+    // it's Windows 7 / Server 2008R2 so GetMaximumProcessorGroupCount should be available.
+    // note: if compiled in 32bit mode, this will max out at 32 processors per group. only 64bit build will return
+    // the correct total number of CPUs on systems with more 33 to 64 CPUs in one group.
+    int i;
+    DWORD logical_cores = 0;
+    for(i = 0; i < pGetMaximumProcessorGroupCount(); i++) {
+      logical_cores += pGetMaximumProcessorCount(i);
+    }
+    return logical_cores;
+  } else {
+    // fallback to less acurate (max. 32 CPU cores) method:
+    SYSTEM_INFO system_info;
+    GetSystemInfo(&system_info);
+    return system_info.dwNumberOfProcessors;
+  }
+}
+
+
 uv_err_t uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
   SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION* sppi;
   DWORD sppi_size;
-  SYSTEM_INFO system_info;
   DWORD cpu_count, i, r;
   ULONG result_size;
   size_t size;
@@ -593,8 +624,7 @@ uv_err_t uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
 
   uv__once_init();
 
-  GetSystemInfo(&system_info);
-  cpu_count = system_info.dwNumberOfProcessors;
+  cpu_count = uv__get_cpu_count();
 
   size = cpu_count * sizeof(uv_cpu_info_t);
   *cpu_infos = (uv_cpu_info_t*) malloc(size);
