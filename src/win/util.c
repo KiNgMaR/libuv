@@ -590,17 +590,10 @@ static DWORD uv__get_cpu_count() {
   VER_SET_CONDITION(condition_mask, VER_MAJORVERSION, VER_GREATER_EQUAL);
   VER_SET_CONDITION(condition_mask, VER_MINORVERSION, VER_GREATER_EQUAL);
 
-  if(VerifyVersionInfoW(&osvi, VER_PLATFORMID | VER_MAJORVERSION | VER_MINORVERSION, condition_mask) &&
-        pGetMaximumProcessorGroupCount && pGetMaximumProcessorCount) {
-    // it's Windows 7 / Server 2008R2 so GetMaximumProcessorGroupCount should be available.
-    // note: if compiled in 32bit mode, this maxes out at 32 processors per group. only 64bit builds return
-    // the correct total number of CPUs on systems with 33 to 64 logical CPUs in one group.
-    int i;
-    DWORD logical_cores = 0;
-    for(i = 0; i < pGetMaximumProcessorGroupCount(); i++) {
-      logical_cores += pGetMaximumProcessorCount(i);
-    }
-    return logical_cores;
+  if(VerifyVersionInfoW(&osvi, VER_PLATFORMID | VER_MAJORVERSION | VER_MINORVERSION, condition_mask)
+	  && pGetActiveProcessorCount) {
+    // it's Windows 7 / Server 2008R2 so GetActiveProcessorCount should be available.
+    return pGetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
   } else {
     // fallback to less acurate (max. 32 CPU cores) method:
     SYSTEM_INFO system_info;

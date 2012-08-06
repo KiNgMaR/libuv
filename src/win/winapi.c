@@ -45,8 +45,7 @@ sTryAcquireSRWLockShared pTryAcquireSRWLockShared;
 sTryAcquireSRWLockExclusive pTryAcquireSRWLockExclusive;
 sReleaseSRWLockShared pReleaseSRWLockShared;
 sReleaseSRWLockExclusive pReleaseSRWLockExclusive;
-sGetMaximumProcessorGroupCount pGetMaximumProcessorGroupCount;
-sGetMaximumProcessorCount pGetMaximumProcessorCount;
+sGetActiveProcessorCount pGetActiveProcessorCount;
 
 
 void uv_winapi_init() {
@@ -132,9 +131,6 @@ void uv_winapi_init() {
   pReleaseSRWLockExclusive = (sReleaseSRWLockExclusive)
     GetProcAddress(kernel32_module, "ReleaseSRWLockExclusive");
 
-  pGetMaximumProcessorGroupCount = (sGetMaximumProcessorGroupCount)
-    GetProcAddress(kernel32_module, "GetMaximumProcessorGroupCount");
-
-  pGetMaximumProcessorCount = (sGetMaximumProcessorCount)
-    GetProcAddress(kernel32_module, "GetMaximumProcessorCount");
+  pGetActiveProcessorCount = (sGetActiveProcessorCount)
+    GetProcAddress(kernel32_module, "GetActiveProcessorCount");
 }

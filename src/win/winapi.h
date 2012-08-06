@@ -4366,6 +4366,10 @@ typedef NTSTATUS (NTAPI *sNtQuerySystemInformation)
   } OVERLAPPED_ENTRY, *LPOVERLAPPED_ENTRY;
 #endif
 
+#ifndef ALL_PROCESSOR_GROUPS
+# define ALL_PROCESSOR_GROUPS 0xffff
+#endif
+
 /* from wincon.h */
 #ifndef ENABLE_INSERT_MODE
 # define ENABLE_INSERT_MODE 0x20
@@ -4426,10 +4430,7 @@ typedef VOID (WINAPI* sReleaseSRWLockShared)
 typedef VOID (WINAPI* sReleaseSRWLockExclusive)
              (PSRWLOCK SRWLock);
 
-typedef WORD (WINAPI* sGetMaximumProcessorGroupCount)
-             (void);
-
-typedef DWORD (WINAPI* sGetMaximumProcessorCount)
+typedef DWORD (WINAPI* sGetActiveProcessorCount)
               (WORD GroupNumber);
 
 
@@ -4453,7 +4454,6 @@ extern sTryAcquireSRWLockShared pTryAcquireSRWLockShared;
 extern sTryAcquireSRWLockExclusive pTryAcquireSRWLockExclusive;
 extern sReleaseSRWLockShared pReleaseSRWLockShared;
 extern sReleaseSRWLockExclusive pReleaseSRWLockExclusive;
-extern sGetMaximumProcessorGroupCount pGetMaximumProcessorGroupCount;
-extern sGetMaximumProcessorCount pGetMaximumProcessorCount;
+extern sGetActiveProcessorCount pGetActiveProcessorCount;
 
 #endif /* UV_WIN_WINAPI_H_ */
